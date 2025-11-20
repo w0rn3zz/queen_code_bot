@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import BigInteger, Text, ForeignKey, Enum, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from . import Base
+from .base import Base
 from .mixins import IntPkMixin, TimestampMixin
 from .enums import MessageRole
 

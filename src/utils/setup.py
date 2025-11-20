@@ -50,14 +50,14 @@ class SetupManager:
         logging.getLogger("aiogram").setLevel(logging.WARNING)
         logging.getLogger("httpx").setLevel(logging.WARNING)
 
-        logging.info("✅ Логирование настроено")
+        logging.info("Логирование настроено")
 
     def setup_routers(self):
         from bot.handlers import user
         self.dp.include_routers(user.router)
 
         
-        logging.info("✅ Роутеры подключены")
+        logging.info("Роутеры подключены")
 
     def setup_middlewares(self):
         from middlewares.inject_session import InjectSession
@@ -67,7 +67,7 @@ class SetupManager:
         self.dp.update.outer_middleware(InjectSession(db_helper))
         self.dp.update.outer_middleware(UpdateUser())
         
-        logging.info("✅ Middleware подключены")
+        logging.info("Middleware подключены")
 
     async def shutdown(self):
         from core.db_helper import db_helper
