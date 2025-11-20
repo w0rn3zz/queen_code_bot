@@ -35,18 +35,17 @@ class ContentFilter(Filter):
     
     def __init__(self, strict: bool = False):
         self.strict = strict
-        self._cached_banwords: set[str] | None = None
     
     async def __call__(self, message: Message, session: AsyncSession) -> bool:
         if not message.text:
             return True
         
-        await self._load_banwords(session)
+        banwords = await self._load_banwords(session)
         
         text = message.text.lower()
         normalized_text = self._normalize_text(text)
         
-        if self._contains_blacklisted_words(normalized_text):
+        if self._contains_blacklisted_words(normalized_text, banwords):
             return False
         
         if self._is_spam(text):
@@ -54,14 +53,13 @@ class ContentFilter(Filter):
         
         return True
     
-    async def _load_banwords(self, session: AsyncSession):
+    async def _load_banwords(self, session: AsyncSession) -> set[str]:
         try:
-            if self._cached_banwords is None:
-                banword_service = BanWordService(session)
-                words = await banword_service.get_all_active_words()
-                self._cached_banwords = set(words) if words else self.DEFAULT_BLACKLIST_WORDS
+            banword_service = BanWordService(session)
+            words = await banword_service.get_all_active_words()
+            return set(words) if words else self.DEFAULT_BLACKLIST_WORDS
         except Exception:
-            self._cached_banwords = self.DEFAULT_BLACKLIST_WORDS
+            return self.DEFAULT_BLACKLIST_WORDS
     
     def _normalize_text(self, text: str) -> str:
         normalized = text
@@ -69,10 +67,8 @@ class ContentFilter(Filter):
             normalized = re.sub(pattern, replacement, normalized)
         return normalized
     
-    def _contains_blacklisted_words(self, text: str) -> bool:
+    def _contains_blacklisted_words(self, text: str, blacklist: set[str]) -> bool:
         words = re.findall(r'\w+', text)
-        
-        blacklist = self._cached_banwords or self.DEFAULT_BLACKLIST_WORDS
         
         for word in words:
             for blacklisted in blacklist:
