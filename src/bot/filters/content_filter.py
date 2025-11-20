@@ -1,18 +1,27 @@
 import re
+from pathlib import Path
 from aiogram.filters import Filter
 from aiogram.types import Message
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from services import BanWordService
 
 
 class ContentFilter(Filter):
     
-    BLACKLIST_WORDS = {
-        "бля", "блять", "хуй", "пизд", "ебан", "еба", "ёб", "сука", "суки",
-        "гандон", "шлюх", "мудак", "мудил", "дебил", "уёб", "уеб",
-        "убить", "убью", "убей", "смерть", "терракт", "теракт", "взрыв",
-        "расстрел", "фашист", "нацист",
-        "наркотик", "наркота", "героин", "кокаин", "марихуан", "гашиш",
-        "синтетик", "соль", "спайс", "мефедрон",
-    }
+    @staticmethod
+    def _load_default_banwords() -> set[str]:
+        try:
+            banwords_file = Path(__file__).parent / "default_banwords.txt"
+            if banwords_file.exists():
+                with open(banwords_file, 'r', encoding='utf-8') as f:
+                    words = {line.strip() for line in f if line.strip()}
+                return words
+        except Exception:
+            pass
+        return {"спам", "реклама", "мошенничество"}
+    
+    DEFAULT_BLACKLIST_WORDS = _load_default_banwords.__func__()
     
     OBFUSCATION_PATTERNS = [
         (r'[0оo]', 'о'),
@@ -26,10 +35,13 @@ class ContentFilter(Filter):
     
     def __init__(self, strict: bool = False):
         self.strict = strict
+        self._cached_banwords: set[str] | None = None
     
-    async def __call__(self, message: Message) -> bool:
+    async def __call__(self, message: Message, session: AsyncSession) -> bool:
         if not message.text:
             return True
+        
+        await self._load_banwords(session)
         
         text = message.text.lower()
         normalized_text = self._normalize_text(text)
@@ -42,6 +54,15 @@ class ContentFilter(Filter):
         
         return True
     
+    async def _load_banwords(self, session: AsyncSession):
+        try:
+            if self._cached_banwords is None:
+                banword_service = BanWordService(session)
+                words = await banword_service.get_all_active_words()
+                self._cached_banwords = set(words) if words else self.DEFAULT_BLACKLIST_WORDS
+        except Exception:
+            self._cached_banwords = self.DEFAULT_BLACKLIST_WORDS
+    
     def _normalize_text(self, text: str) -> str:
         normalized = text
         for pattern, replacement in self.OBFUSCATION_PATTERNS:
@@ -51,8 +72,10 @@ class ContentFilter(Filter):
     def _contains_blacklisted_words(self, text: str) -> bool:
         words = re.findall(r'\w+', text)
         
+        blacklist = self._cached_banwords or self.DEFAULT_BLACKLIST_WORDS
+        
         for word in words:
-            for blacklisted in self.BLACKLIST_WORDS:
+            for blacklisted in blacklist:
                 if blacklisted in word:
                     return True
         

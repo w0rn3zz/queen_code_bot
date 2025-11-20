@@ -8,6 +8,8 @@ from .mixins import IntPkMixin, TimestampMixin
 from .enums import MessageRole
 from .user import User
 from .message import Message
+from .banword import BanWord
+from .admin import Admin
 from .base import Base
 
 __all__ = [
@@ -17,4 +19,6 @@ __all__ = [
     "User",
     "Message",
     "MessageRole",
+    "BanWord",
+    "Admin",
 ]
