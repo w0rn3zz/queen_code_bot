@@ -1,8 +1,8 @@
 from pydantic import computed_field
-from .base import BaseCofing
+from .base import BaseConfig
 
 
-class DatabaseConfig(BaseCofing):
+class DatabaseConfig(BaseConfig):
     
     postgres_host: str
     postgres_port: int

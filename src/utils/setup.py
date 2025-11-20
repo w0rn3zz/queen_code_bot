@@ -62,10 +62,12 @@ class SetupManager:
     def setup_middlewares(self):
         from middlewares.inject_session import InjectSession
         from middlewares.update_user import UpdateUser
+        from middlewares.antiflood import AntiFloodMiddleware
         from core.db_helper import db_helper
         
         self.dp.update.outer_middleware(InjectSession(db_helper))
         self.dp.update.outer_middleware(UpdateUser())
+        self.dp.message.middleware(AntiFloodMiddleware(time_limit=1))
         
         logging.info("Middleware подключены")
 
