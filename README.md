@@ -86,6 +86,7 @@ uv run pytest -v
 ```bash
 uv run pytest tests/test_admin_handlers.py
 uv run pytest tests/test_user_handlers.py
+```
 
 ### Структура тестов
 
