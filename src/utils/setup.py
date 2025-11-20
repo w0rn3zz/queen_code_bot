@@ -65,7 +65,7 @@ class SetupManager:
         from core.db_helper import db_helper
         
         self.dp.update.outer_middleware(InjectSession(db_helper))
-        self.dp.update.outer_middleware(UpdateUser(db_helper))
+        self.dp.update.outer_middleware(UpdateUser())
         
         logging.info("✅ Middleware подключены")
 

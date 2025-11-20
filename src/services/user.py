@@ -5,14 +5,14 @@ from dao import UserDao
 
 
 class UserService:
-    @classmethod
-    async def get_user(cls, session: AsyncSession, tg_id: int) -> User | None:
-        return await UserDao.find_by_tg_id(session, tg_id)
+    def __init__(self, session: AsyncSession):
+        self.user_dao = UserDao(session)
     
-    @classmethod
+    async def get_user(self, tg_id: int) -> User | None:
+        return await self.user_dao.find_by_tg_id(tg_id)
+    
     async def create_user(
-        cls,
-        session: AsyncSession,
+        self,
         tg_id: int,
         username: str | None,
         first_name: str,
@@ -24,52 +24,35 @@ class UserService:
             "first_name": first_name,
             "last_name": last_name
         }
-        return await UserDao.create(session, user_data)
+        return await self.user_dao.create(user_data)
     
-    @classmethod
     async def update_user(
-        cls,
-        session: AsyncSession,
+        self,
         tg_id: int,
         username: str | None = None,
         first_name: str | None = None,
         last_name: str | None = None
     ) -> User | None:
-        user = await cls.get_user(session, tg_id)
-        if not user:
-            return None
-        
+        update_data = {}
         if username is not None:
-            user.username = username
+            update_data["username"] = username
         if first_name is not None:
-            user.first_name = first_name
+            update_data["first_name"] = first_name
         if last_name is not None:
-            user.last_name = last_name
+            update_data["last_name"] = last_name
         
-        await session.commit()
-        await session.refresh(user)
-        return user
+        return await self.user_dao.update_by_tg_id(tg_id, update_data)
     
-    @classmethod
     async def upsert_user(
-        cls,
-        session: AsyncSession,
+        self,
         tg_id: int,
         username: str | None,
         first_name: str,
         last_name: str | None = None
     ) -> User:
-        user = await cls.get_user(session, tg_id)
-        
-        if user:
-            user.username = username
-            user.first_name = first_name
-            user.last_name = last_name
-            await session.commit()
-            await session.refresh(user)
-        else:
-            user = await cls.create_user(
-                session, tg_id, username, first_name, last_name
-            )
-        
-        return user
+        user_data = {
+            "username": username,
+            "first_name": first_name,
+            "last_name": last_name
+        }
+        return await self.user_dao.upsert(tg_id, user_data)

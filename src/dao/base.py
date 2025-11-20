@@ -1,6 +1,6 @@
 from typing import Type, TypeVar, Generic
 
-from sqlalchemy import select, update, delete
+from sqlalchemy import select, update, delete, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.models import Base
@@ -11,59 +11,60 @@ ModelType = TypeVar("ModelType", bound=Base)
 class BaseDao(Generic[ModelType]):
     model: Type[ModelType]
 
-    @classmethod
-    async def create(cls, session: AsyncSession, obj: dict) -> Type[ModelType]:
-        model_in = cls.model(**obj)
-        session.add(model_in)
-        await session.commit()
-        await session.refresh(model_in)
+    def __init__(self, session: AsyncSession):
+        self.session = session
+
+    async def create(self, obj: dict) -> ModelType:
+        model_in = self.model(**obj)
+        self.session.add(model_in)
+        await self.session.flush()
+        await self.session.refresh(model_in)
         return model_in
 
-    @classmethod
-    async def find_by_id(cls, session: AsyncSession, model_id: int) -> Type[ModelType]:
-        query = select(cls.model).where(cls.model.id == model_id)
-        res = await session.execute(query)
+    async def find_by_id(self, model_id: int) -> ModelType | None:
+        query = select(self.model).where(self.model.id == model_id)
+        res = await self.session.execute(query)
+        return res.scalar_one_or_none()
 
-        return res.scalar()
-
-    @classmethod
-    async def find_all_by_filters(
-        cls, session: AsyncSession, filters: dict
-    ) -> list[Type[ModelType]]:
-        query = select(cls.model).filter_by(**filters)
-        res = await session.execute(query)
-
+    async def find_all_by_filters(self, filters: dict) -> list[ModelType]:
+        query = select(self.model).filter_by(**filters)
+        res = await self.session.execute(query)
         return list(res.scalars().all())
 
-    @classmethod
-    async def find_one_by_filters(
-        cls, session: AsyncSession, filters: dict
-    ) -> Type[ModelType]:
-        query = select(cls.model).filter_by(**filters)
-        res = await session.execute(query)
+    async def find_one_by_filters(self, filters: dict) -> ModelType | None:
+        query = select(self.model).filter_by(**filters)
+        res = await self.session.execute(query)
+        return res.scalar_one_or_none()
 
-        return res.scalar()
-
-    @classmethod
-    async def find_all(cls, session: AsyncSession) -> list[Type[ModelType]]:
-        query = select(cls.model)
-        res = await session.execute(query)
-
+    async def find_all(self) -> list[ModelType]:
+        query = select(self.model)
+        res = await self.session.execute(query)
         return list(res.scalars().all())
 
-    @classmethod
-    async def update(
-        cls, session: AsyncSession, filters: dict, values: dict
-    ) -> Type[ModelType]:
+    async def update(self, filters: dict, values: dict) -> ModelType | None:
         query = (
-            update(cls.model).filter_by(**filters).values(**values).returning(cls.model)
+            update(self.model).filter_by(**filters).values(**values).returning(self.model)
         )
-        out_obj = await session.execute(query)
-        await session.commit()
-        return out_obj.scalar()
+        out_obj = await self.session.execute(query)
+        return out_obj.scalar_one_or_none()
 
-    @classmethod
-    async def delete_by_id(cls, session: AsyncSession, model_id: int) -> None:
-        query = delete(cls.model).where(cls.model.id == model_id)
-        await session.execute(query)
-        await session.commit()
+    async def update_by_id(self, model_id: int, values: dict) -> ModelType | None:
+        query = (
+            update(self.model)
+            .where(self.model.id == model_id)
+            .values(**values)
+            .returning(self.model)
+        )
+        result = await self.session.execute(query)
+        return result.scalar_one_or_none()
+
+    async def count(self, filters: dict | None = None) -> int:
+        query = select(func.count()).select_from(self.model)
+        if filters:
+            query = query.filter_by(**filters)
+        result = await self.session.execute(query)
+        return result.scalar()
+
+    async def delete_by_id(self, model_id: int) -> None:
+        query = delete(self.model).where(self.model.id == model_id)
+        await self.session.execute(query)

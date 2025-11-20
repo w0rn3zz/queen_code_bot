@@ -8,8 +8,34 @@ from .base import BaseDao
 class UserDao(BaseDao[User]):
     model = User
     
-    @classmethod
-    async def find_by_tg_id(cls, session: AsyncSession, tg_id: int) -> User | None:
-        query = select(cls.model).where(cls.model.tg_id == tg_id)
-        res = await session.execute(query)
+    async def find_by_tg_id(self, tg_id: int) -> User | None:
+        query = select(self.model).where(self.model.tg_id == tg_id)
+        res = await self.session.execute(query)
         return res.scalar_one_or_none()
+    
+    async def update_by_tg_id(self, tg_id: int, values: dict) -> User | None:
+        user = await self.find_by_tg_id(tg_id)
+        if not user:
+            return None
+        
+        for key, value in values.items():
+            if value is not None:
+                setattr(user, key, value)
+        
+        await self.session.flush()
+        await self.session.refresh(user)
+        return user
+    
+    async def upsert(self, tg_id: int, user_data: dict) -> User:
+        user = await self.find_by_tg_id(tg_id)
+        
+        if user:
+            for key, value in user_data.items():
+                if key != 'tg_id':
+                    setattr(user, key, value)
+            await self.session.flush()
+            await self.session.refresh(user)
+        else:
+            user = await self.create({"tg_id": tg_id, **user_data})
+        
+        return user
