@@ -1,5 +1,5 @@
-from .base import BaseCofing
+from .base import BaseConfig
 
-class RedisConfig(BaseCofing):
+class RedisConfig(BaseConfig):
     redis_host: str
     redis_port: int

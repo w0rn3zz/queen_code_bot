@@ -23,51 +23,63 @@ class SetupManager:
     def setup_logging(self):
         logs_dir = Path(__file__).resolve().parents[2] / "logs"
         logs_dir.mkdir(exist_ok=True)
-
-        file_log = logging.FileHandler(
-            logs_dir / "bot.log",
-            mode="a",
-            encoding="utf-8",
-        )
-        file_log.setLevel(logging.ERROR)
-
-        console_out = logging.StreamHandler()
-        console_out.setLevel(logging.INFO)
+        
+        log_file_path = logs_dir / "bot.log"
 
         def timetz(*args):
             tz = timezone("Europe/Moscow")
             return datetime.now(tz).timetuple()
 
         logging.Formatter.converter = timetz
-
-        logging.basicConfig(
-            level=logging.INFO,
-            format="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S",
-            handlers=[file_log, console_out],
+        
+        formatter = logging.Formatter(
+            fmt="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S"
         )
+
+        file_handler = logging.FileHandler(
+            log_file_path,
+            mode="a",
+            encoding="utf-8",
+        )
+        file_handler.setLevel(logging.WARNING)
+        file_handler.setFormatter(formatter)
+
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.INFO)
+        console_handler.setFormatter(formatter)
+
+        root_logger = logging.getLogger()
+        root_logger.setLevel(logging.INFO)
+        root_logger.addHandler(file_handler)
+        root_logger.addHandler(console_handler)
 
         logging.getLogger("aiogram").setLevel(logging.WARNING)
         logging.getLogger("httpx").setLevel(logging.WARNING)
 
-        logging.info("✅ Логирование настроено")
+        logging.info("Логирование настроено")
+        logging.info(f"Файл логов: {log_file_path}")
 
     def setup_routers(self):
         from bot.handlers import user
         self.dp.include_routers(user.router)
 
         
-        logging.info("✅ Роутеры подключены")
+        logging.info("Роутеры подключены")
 
     def setup_middlewares(self):
         from middlewares.inject_session import InjectSession
         from middlewares.update_user import UpdateUser
+        from middlewares.antiflood import AntiFloodMiddleware
+        from middlewares.logging_middleware import LoggingMiddleware
         from core.db_helper import db_helper
         
         self.dp.update.outer_middleware(InjectSession(db_helper))
         self.dp.update.outer_middleware(UpdateUser())
+        self.dp.message.middleware(LoggingMiddleware())
+        self.dp.message.middleware(AntiFloodMiddleware(time_limit=1))
         
-        logging.info("✅ Middleware подключены")
+        logging.info("Middleware подключены")
 
     async def shutdown(self):
         from core.db_helper import db_helper

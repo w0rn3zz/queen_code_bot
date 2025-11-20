@@ -1,4 +1,4 @@
-from .base import BaseCofing
+from .base import BaseConfig
 
-class BotConfig(BaseCofing):
+class BotConfig(BaseConfig):
     bot_token: str
