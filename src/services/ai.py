@@ -59,7 +59,7 @@ class AIService:
         )
         messages = [{"role": "system", "content": settings.ai.system_prompt}]
         
-        for msg in reversed(history):
+        for msg in history:
             role = "user" if msg.role == MessageRole.USER else "assistant"
             messages.append({
                 "role": role,

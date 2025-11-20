@@ -1,0 +1,42 @@
+2025-11-20 21:46:00 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-20 21:46:18 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-20 21:55:56 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-20 21:58:27 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-20 22:04:38 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-20 22:23:29 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-20 23:15:20 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-20 23:19:48 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-20 23:25:25 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-20 23:29:48 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-20 23:32:18 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-20 23:32:33 | WARNING  | bot.handlers.user | Failed to send with HTML formatting: Telegram server says - Bad Request: can't parse entities: Unsupported start tag "iostream" at byte offset 287
+2025-11-20 23:34:31 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-20 23:37:17 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-20 23:40:04 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-20 23:40:33 | WARNING  | bot.handlers.user | Failed to send with Markdown: Telegram server says - Bad Request: can't parse entities: Can't find end of the entity starting at byte offset 765
+2025-11-20 23:41:58 | WARNING  | bot.handlers.user | Failed to send with Markdown: Telegram server says - Bad Request: can't parse entities: Can't find end of the entity starting at byte offset 1937
+2025-11-20 23:42:53 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-20 23:45:02 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-20 23:45:26 | WARNING  | bot.handlers.user | Failed to send with Markdown, sending plain text: Telegram server says - Bad Request: can't parse entities: Can't find end of the entity starting at byte offset 1255
+2025-11-20 23:46:55 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-20 23:47:15 | WARNING  | bot.handlers.user | Failed to send with Markdown, sending plain text: Telegram server says - Bad Request: can't parse entities: Can't find end of the entity starting at byte offset 1965
+2025-11-20 23:48:47 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-20 23:49:06 | WARNING  | bot.handlers.user | Failed to send with HTML, sending plain text: Telegram server says - Bad Request: can't parse entities: Empty attribute name in the tag "a" at byte offset 959
+2025-11-20 23:50:29 | WARNING  | bot.handlers.user | Failed to send with HTML, sending plain text: Telegram server says - Bad Request: can't parse entities: Empty attribute name in the tag "a" at byte offset 961
+2025-11-20 23:51:22 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-20 23:52:49 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-20 23:54:51 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-20 23:55:02 | WARNING  | bot.handlers.user | Failed to send message: Telegram server says - Bad Request: can't parse entities: Character '!' is reserved and must be escaped with the preceding '\'
+2025-11-20 23:55:16 | WARNING  | bot.handlers.user | Failed to send message: Telegram server says - Bad Request: can't parse entities: Character '#' is reserved and must be escaped with the preceding '\'
+2025-11-20 23:55:58 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-20 23:58:48 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-21 00:02:01 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-21 00:02:51 | ERROR    | ai.gigachat_client | GigaChat error: _ssl.c:1015: The handshake operation timed out
+2025-11-21 00:03:21 | ERROR    | ai.gigachat_client | GigaChat error: _ssl.c:1015: The handshake operation timed out
+2025-11-21 00:05:31 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-21 00:05:58 | WARNING  | bot.handlers.user | Failed to send HTML message: Telegram server says - Bad Request: can't parse entities: Unmatched end tag at byte offset 306, expected "</b>", found "</i>"
+2025-11-21 00:07:45 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-21 00:10:20 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-21 00:12:34 | WARNING  | aiogram.dispatcher | Received SIGTERM signal
+2025-11-21 00:33:18 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ServerDisconnectedError: Server disconnected
+2025-11-21 00:33:18 | WARNING  | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 7725275579)

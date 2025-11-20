@@ -5,7 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import logging
 
 from services import UserService, AIService
-from bot.filters import MessageLengthFilter, NotEmptyFilter
+from bot.filters import MessageLengthFilter, NotEmptyFilter, ContentFilter
+from utils.markdown_converter import markdown_to_html
 
 router = Router()
 logger = logging.getLogger(__name__)
@@ -84,7 +85,7 @@ async def cmd_reset(message: Message, session: AsyncSession):
         await message.answer("❌ Ошибка: пользователь не найден.")
 
 
-@router.message(F.text, NotEmptyFilter(), MessageLengthFilter(max_length=4000))
+@router.message(F.text, NotEmptyFilter(), MessageLengthFilter(max_length=4000), ContentFilter())
 async def handle_text_message(message: Message, session: AsyncSession):
     await message.bot.send_chat_action(message.chat.id, "typing")
     
@@ -101,12 +102,21 @@ async def handle_text_message(message: Message, session: AsyncSession):
         user_message=message.text
     )
     
-    if len(response) > 4096:
-        for i in range(0, len(response), 4096):
-            await message.answer(response[i:i+4096])
-    else:
-        await message.answer(response)
-
+    html_response = markdown_to_html(response)
+    
+    try:
+        if len(html_response) > 4096:
+            for i in range(0, len(html_response), 4096):
+                await message.answer(html_response[i:i+4096], parse_mode="HTML")
+        else:
+            await message.answer(html_response, parse_mode="HTML")
+    except Exception as e:
+        logger.warning(f"Failed to send HTML message: {e}")
+        if len(response) > 4096:
+            for i in range(0, len(response), 4096):
+                await message.answer(response[i:i+4096])
+        else:
+            await message.answer(response)
 
 @router.message(F.text)
 async def handle_invalid_message(message: Message):
@@ -114,3 +124,11 @@ async def handle_invalid_message(message: Message):
         await message.answer("❌ Сообщение слишком длинное. Максимум 4000 символов.")
     elif not message.text or not message.text.strip():
         await message.answer("❌ Сообщение не может быть пустым.")
+    else:
+        await message.answer(
+            "⚠️ Ваше сообщение содержит нежелательный контент.\n"
+            "Пожалуйста, соблюдайте правила общения:\n"
+            "• Без нецензурной лексики\n"
+            "• Без угроз и экстремизма\n"
+            "• Без спама и флуда"
+        )

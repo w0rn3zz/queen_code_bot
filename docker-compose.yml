@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ./logs:/logs
+      - ./logs:/app/logs
     restart: unless-stopped
     depends_on:
       - db
@@ -32,7 +32,6 @@ services:
     restart: unless-stopped
 
   redis:
-    # cache (redis)
     image: redis:6-alpine
     volumes:
       - ./src/core/redis/redis.conf:/usr/local/etc/redis/redis.conf

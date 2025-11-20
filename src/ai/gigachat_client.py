@@ -34,14 +34,21 @@ class GigaChatClient:
             client = self._get_client()
             
             giga_messages = []
+            system_prompt = None
             
             for msg in messages:
                 if msg["role"] == "system":
-                    continue
+                    system_prompt = msg["content"]
                 elif msg["role"] == "user":
                     giga_messages.append(Messages(role=MessagesRole.USER, content=msg["content"]))
                 else:
                     giga_messages.append(Messages(role=MessagesRole.ASSISTANT, content=msg["content"]))
+            
+            if system_prompt:
+                giga_messages.insert(0, Messages(
+                    role=MessagesRole.SYSTEM,
+                    content=system_prompt
+                ))
             
             response = client.chat(
                 Chat(
