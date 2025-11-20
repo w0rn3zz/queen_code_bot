@@ -61,8 +61,8 @@ class SetupManager:
         logging.info(f"Файл логов: {log_file_path}")
 
     def setup_routers(self):
-        from bot.handlers import user
-        self.dp.include_routers(user.router)
+        from bot.handlers import user, admin
+        self.dp.include_routers(admin.router, user.router)
 
         
         logging.info("Роутеры подключены")

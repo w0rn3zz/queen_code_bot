@@ -7,7 +7,7 @@ from .base import Base
 from .mixins import IntPkMixin, TimestampMixin
 
 if TYPE_CHECKING:
-    from core.models import Message
+    from core.models import Message, Admin
 
 class User(Base, IntPkMixin, TimestampMixin):
     __tablename__ = "users"

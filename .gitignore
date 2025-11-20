@@ -3,7 +3,7 @@
 __pycache__
 .idea
 .vscode
-data/
+docker/volumes/
 logs.log
 .env-local
 .DS_Store
