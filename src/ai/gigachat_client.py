@@ -33,13 +33,15 @@ class GigaChatClient:
         try:
             client = self._get_client()
             
-            giga_messages = [
-                Messages(
-                    role=MessagesRole.USER if msg["role"] == "user" else MessagesRole.ASSISTANT,
-                    content=msg["content"]
-                )
-                for msg in messages
-            ]
+            giga_messages = []
+            
+            for msg in messages:
+                if msg["role"] == "system":
+                    continue
+                elif msg["role"] == "user":
+                    giga_messages.append(Messages(role=MessagesRole.USER, content=msg["content"]))
+                else:
+                    giga_messages.append(Messages(role=MessagesRole.ASSISTANT, content=msg["content"]))
             
             response = client.chat(
                 Chat(
@@ -50,7 +52,8 @@ class GigaChatClient:
             )
             
             if response.choices and len(response.choices) > 0:
-                return response.choices[0].message.content
+                full_response = response.choices[0].message.content
+                return full_response
             
             logger.error("GigaChat returned empty response")
             return "Извините, не могу сгенерировать ответ. Попробуйте еще раз."

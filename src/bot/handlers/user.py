@@ -2,11 +2,13 @@ from aiogram import Router, F
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
 from sqlalchemy.ext.asyncio import AsyncSession
+import logging
 
 from services import UserService, AIService
 from bot.filters import MessageLengthFilter, NotEmptyFilter
 
 router = Router()
+logger = logging.getLogger(__name__)
 
 
 @router.message(CommandStart())
@@ -99,7 +101,11 @@ async def handle_text_message(message: Message, session: AsyncSession):
         user_message=message.text
     )
     
-    await message.answer(response)
+    if len(response) > 4096:
+        for i in range(0, len(response), 4096):
+            await message.answer(response[i:i+4096])
+    else:
+        await message.answer(response)
 
 
 @router.message(F.text)
